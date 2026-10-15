@@ -1,7 +1,9 @@
 
-const API_BASE_URL = "http://localhost:8080/api/analytics";
-const PRODUCT_API_URL = "http://localhost:8080/api/products";
+const API_BASE_URL =
+  "https://maison-fashion-store-analytics.onrender.com/api/analytics";
 
+const PRODUCT_API_URL =
+  "https://maison-fashion-store-analytics.onrender.com/api/products";
 function getAuthHeaders() {
   const token = localStorage.getItem("token");
 

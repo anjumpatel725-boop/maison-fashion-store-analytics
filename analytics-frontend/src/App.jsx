@@ -5,7 +5,8 @@ import Analytics from "./pages/Analytics";
 import Events from "./pages/Events";
 import "./App.css";
 
-const AUTH_API_URL = "http://localhost:8080/api/auth/login";
+const AUTH_API_URL =
+  "https://maison-fashion-store-analytics.onrender.com/api/auth/login";
 
 function App() {
   const [activePage, setActivePage] = useState("Dashboard");
