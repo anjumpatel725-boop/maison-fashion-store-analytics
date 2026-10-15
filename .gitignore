@@ -26,3 +26,6 @@ Thumbs.db
 
 # Local-only MAISON storefront (separate repository)
 fashion-store/
+
+# Local database backup
+maison-analytics-backup.dump
