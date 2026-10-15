@@ -34,7 +34,8 @@ public class SecurityConfig {
         "http://localhost:5173",
         "http://localhost:5174",
         "https://maison-fashion-store-one.vercel.app",
-           "https://maison-fashion-store-analytics.vercel.app"
+           "https://maison-fashion-store-analytics.vercel.app",
+             "https://maison-fashion-store-analytics-nuusr0j75.vercel.app"
 ));
 
         configuration.setAllowedMethods(List.of(
