@@ -29,3 +29,5 @@ fashion-store/
 
 # Local database backup
 maison-analytics-backup.dump
+# Local source-code backups
+*.jsx.bak
