@@ -18,7 +18,8 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "https://maison-fashion-store-one.vercel.app"
+                "https://maison-fashion-store-one.vercel.app",
+                "https://maison-fashion-store-analytics.vercel.app"
         ));
 
         config.setAllowedMethods(List.of(
