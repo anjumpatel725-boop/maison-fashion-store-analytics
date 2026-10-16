@@ -1,3 +1,4 @@
+
 package com.example.analytics.dto;
 
 import java.math.BigDecimal;
@@ -10,6 +11,10 @@ public record AdminOrderResponse(
         Long customerId,
         String customerName,
         String customerEmail,
+        String phone,
+        String shippingAddress,
+        String city,
+        String postalCode,
         BigDecimal totalAmount,
         String paymentMethod,
         String paymentStatus,

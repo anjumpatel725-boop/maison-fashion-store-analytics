@@ -1,3 +1,4 @@
+
 package com.example.analytics.controller;
 
 import java.math.BigDecimal;
@@ -20,7 +21,6 @@ import com.example.analytics.dto.OrderResponse;
 import com.example.analytics.dto.OrderStatusUpdateRequest;
 
 import jakarta.validation.Valid;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -64,6 +64,10 @@ public class AdminOrderController {
                         a.email,
                         ''
                     ) AS customer_email,
+                    o.phone,
+                    o.shipping_address,
+                    o.city,
+                    o.postal_code,
                     o.total_amount,
                     o.payment_method,
                     o.payment_status,
@@ -81,6 +85,10 @@ public class AdminOrderController {
                                 row.get("customer_id", Long.class),
                                 row.get("customer_name", String.class),
                                 row.get("customer_email", String.class),
+                                row.get("phone", String.class),
+                                row.get("shipping_address", String.class),
+                                row.get("city", String.class),
+                                row.get("postal_code", String.class),
                                 row.get("total_amount", BigDecimal.class),
                                 row.get("payment_method", String.class),
                                 row.get("payment_status", String.class),
@@ -97,6 +105,10 @@ public class AdminOrderController {
                                         order.customerId(),
                                         order.customerName(),
                                         order.customerEmail(),
+                                        order.phone(),
+                                        order.shippingAddress(),
+                                        order.city(),
+                                        order.postalCode(),
                                         order.totalAmount(),
                                         order.paymentMethod(),
                                         order.paymentStatus(),
@@ -185,6 +197,10 @@ public class AdminOrderController {
                         a.email,
                         ''
                     ) AS customer_email,
+                    o.phone,
+                    o.shipping_address,
+                    o.city,
+                    o.postal_code,
                     o.total_amount,
                     o.payment_method,
                     o.payment_status,
@@ -203,6 +219,10 @@ public class AdminOrderController {
                                 row.get("customer_id", Long.class),
                                 row.get("customer_name", String.class),
                                 row.get("customer_email", String.class),
+                                row.get("phone", String.class),
+                                row.get("shipping_address", String.class),
+                                row.get("city", String.class),
+                                row.get("postal_code", String.class),
                                 row.get("total_amount", BigDecimal.class),
                                 row.get("payment_method", String.class),
                                 row.get("payment_status", String.class),
@@ -224,6 +244,10 @@ public class AdminOrderController {
                                         order.customerId(),
                                         order.customerName(),
                                         order.customerEmail(),
+                                        order.phone(),
+                                        order.shippingAddress(),
+                                        order.city(),
+                                        order.postalCode(),
                                         order.totalAmount(),
                                         order.paymentMethod(),
                                         order.paymentStatus(),
