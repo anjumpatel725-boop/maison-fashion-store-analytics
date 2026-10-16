@@ -1,20 +1,22 @@
 
 function RecentEvents({ events = [] }) {
   function formatDate(value) {
-    if (!value) return "—";
+  if (!value) return "—";
 
-    const date = new Date(value);
+  const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) return String(value);
+  if (Number.isNaN(date.getTime())) return String(value);
 
-    return date.toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
 
   return (
     <div className="events-table-wrapper">
