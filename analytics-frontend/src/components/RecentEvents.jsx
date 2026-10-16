@@ -3,7 +3,18 @@ function RecentEvents({ events = [] }) {
   function formatDate(value) {
   if (!value) return "—";
 
-  const date = new Date(value);
+  // API timestamps without a timezone are treated as UTC.
+  // Example: 2026-10-16T11:36:12.852153
+  const hasTimezone =
+    typeof value === "string" &&
+    /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
+
+  const normalizedValue =
+    typeof value === "string" && !hasTimezone
+      ? `${value}Z`
+      : value;
+
+  const date = new Date(normalizedValue);
 
   if (Number.isNaN(date.getTime())) return String(value);
 
