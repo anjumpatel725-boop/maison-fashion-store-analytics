@@ -3,7 +3,6 @@ package com.example.analytics.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,26 +51,26 @@ public class OrderService {
 
         if (customerId == null || customerId <= 0) {
             return Mono.error(new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Invalid customer"));
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid customer"));
         }
 
         if (request.items().size() > 50) {
             return Mono.error(new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Too many order items"));
+                    HttpStatus.BAD_REQUEST,
+                    "Too many order items"));
         }
 
         Mono<OrderResponse> operation = Mono.defer(() ->
                 Flux.fromIterable(request.items())
-                        .concatMap(item -> getProduct(item))
+                        .concatMap(this::getProduct)
                         .collectList()
                         .flatMap(products -> {
 
                             BigDecimal total = products.stream()
-                                    .map(p -> p.price()
-                                            .multiply(BigDecimal.valueOf(
-                                                    p.quantity())))
-                                    .reduce(BigDecimal.ZERO,
-                                            BigDecimal::add);
+                                    .map(p -> p.price().multiply(
+                                            BigDecimal.valueOf(p.quantity())))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                             String orderNumber = "MSN-"
                                     + UUID.randomUUID()
@@ -81,18 +80,49 @@ public class OrderService {
 
                             return databaseClient.sql("""
                                     INSERT INTO public.customer_orders
-                                        (customer_id, order_number,
-                                         total_amount, payment_method,
-                                         payment_status, order_status)
+                                        (customer_id,
+                                         order_number,
+                                         customer_name,
+                                         customer_email,
+                                         phone,
+                                         shipping_address,
+                                         city,
+                                         postal_code,
+                                         total_amount,
+                                         payment_method,
+                                         payment_status,
+                                         order_status)
                                     VALUES
-                                        (:customerId, :orderNumber,
-                                         :total, :paymentMethod,
-                                         'SUCCESS', 'PLACED')
-                                    RETURNING id, order_number,
-                                              total_amount, created_at
+                                        (:customerId,
+                                         :orderNumber,
+                                         :customerName,
+                                         :customerEmail,
+                                         :phone,
+                                         :shippingAddress,
+                                         :city,
+                                         :postalCode,
+                                         :total,
+                                         :paymentMethod,
+                                         'SUCCESS',
+                                         'PLACED')
+                                    RETURNING id,
+                                              order_number,
+                                              total_amount,
+                                              created_at
                                     """)
                                     .bind("customerId", customerId)
                                     .bind("orderNumber", orderNumber)
+                                    .bind("customerName",
+                                            request.customerName().trim())
+                                    .bind("customerEmail",
+                                            request.customerEmail()
+                                                    .trim().toLowerCase())
+                                    .bind("phone", request.phone().trim())
+                                    .bind("shippingAddress",
+                                            request.shippingAddress().trim())
+                                    .bind("city", request.city().trim())
+                                    .bind("postalCode",
+                                            request.postalCode().trim())
                                     .bind("total", total)
                                     .bind("paymentMethod",
                                             request.paymentMethod())
@@ -107,32 +137,31 @@ public class OrderService {
                                                             LocalDateTime.class)
                                             ))
                                     .one()
-                                    .flatMap(saved -> saveItems(
-                                            saved.id(), products)
-                                            .thenReturn(
-                                                    new OrderResponse(
-                                                            saved.id(),
-                                                            saved.orderNumber(),
-                                                            saved.totalAmount(),
-                                                            request.paymentMethod(),
-                                                            "SUCCESS",
-                                                            "PLACED",
-                                                            saved.createdAt(),
-                                                            products.stream()
-                                                                    .map(p ->
-                                                                            new OrderResponse
-                                                                            .OrderItemResponse(
-                                                                                    p.id(),
-                                                                                    p.name(),
-                                                                                    p.sku(),
-                                                                                    p.price(),
-                                                                                    p.quantity(),
-                                                                                    p.price().multiply(
-                                                                                            BigDecimal.valueOf(
-                                                                                                    p.quantity()))
-                                                                            ))
-                                                                    .toList()
-                                                    )));
+                                    .flatMap(saved ->
+                                            saveItems(saved.id(), products)
+                                                    .thenReturn(
+                                                            new OrderResponse(
+                                                                    saved.id(),
+                                                                    saved.orderNumber(),
+                                                                    saved.totalAmount(),
+                                                                    request.paymentMethod(),
+                                                                    "SUCCESS",
+                                                                    "PLACED",
+                                                                    saved.createdAt(),
+                                                                    products.stream()
+                                                                            .map(p ->
+                                                                                    new OrderResponse.OrderItemResponse(
+                                                                                            p.id(),
+                                                                                            p.name(),
+                                                                                            p.sku(),
+                                                                                            p.price(),
+                                                                                            p.quantity(),
+                                                                                            p.price().multiply(
+                                                                                                    BigDecimal.valueOf(
+                                                                                                            p.quantity()))
+                                                                                    ))
+                                                                            .toList()
+                                                            )));
                         })
         );
 
@@ -145,7 +174,8 @@ public class OrderService {
                 || item.productId() <= 0
                 || item.quantity() < 1) {
             return Mono.error(new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Invalid product or quantity"));
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid product or quantity"));
         }
 
         return databaseClient.sql("""
@@ -191,11 +221,21 @@ public class OrderService {
                 .concatMap(product ->
                         databaseClient.sql("""
                                 INSERT INTO public.customer_order_items
-                                    (order_id, product_id, product_name,
-                                     sku, unit_price, quantity, line_total)
+                                    (order_id,
+                                     product_id,
+                                     product_name,
+                                     sku,
+                                     unit_price,
+                                     quantity,
+                                     line_total)
                                 VALUES
-                                    (:orderId, :productId, :productName,
-                                     :sku, :unitPrice, :quantity, :lineTotal)
+                                    (:orderId,
+                                     :productId,
+                                     :productName,
+                                     :sku,
+                                     :unitPrice,
+                                     :quantity,
+                                     :lineTotal)
                                 """)
                                 .bind("orderId", orderId)
                                 .bind("productId", product.id())
@@ -216,8 +256,13 @@ public class OrderService {
     public Mono<List<OrderResponse>> getOrders(Long customerId) {
 
         return databaseClient.sql("""
-                SELECT id, order_number, total_amount, payment_method,
-                       payment_status, order_status, created_at
+                SELECT id,
+                       order_number,
+                       total_amount,
+                       payment_method,
+                       payment_status,
+                       order_status,
+                       created_at
                 FROM public.customer_orders
                 WHERE customer_id = :customerId
                 ORDER BY created_at DESC
@@ -236,8 +281,12 @@ public class OrderService {
                 .all()
                 .concatMap(order ->
                         databaseClient.sql("""
-                                SELECT product_id, product_name, sku,
-                                       unit_price, quantity, line_total
+                                SELECT product_id,
+                                       product_name,
+                                       sku,
+                                       unit_price,
+                                       quantity,
+                                       line_total
                                 FROM public.customer_order_items
                                 WHERE order_id = :orderId
                                 ORDER BY id
